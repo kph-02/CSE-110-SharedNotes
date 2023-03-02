@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
@@ -25,6 +27,43 @@ public class NoteAPI {
             instance = new NoteAPI();
         }
         return instance;
+    }
+    public boolean exists(String title) {
+        title = title.replace(" ", "%20");
+        boolean hasNote = false;
+        var request = new Request.Builder()
+                .url("https://sharednotes.goto.ucsd.edu/notes/" + title)
+                .method("GET", null)
+                .build();
+
+        try (var response = client.newCall(request).execute()) {
+            assert response.body() != null;
+            var body = response.body().string();
+            JSONObject json = new JSONObject(body);
+            hasNote = !json.has("details");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return hasNote;
+    }
+
+    public String get(String title) {
+        title = title.replace(" ", "%20");
+        String content = null;
+        var request = new Request.Builder()
+                .url("https://sharednotes.goto.ucsd.edu/notes/" + title)
+                .method("GET", null)
+                .build();
+
+        try (var response = client.newCall(request).execute()) {
+            assert response.body() != null;
+            var body = response.body().string();
+            JSONObject json = new JSONObject(body);
+            content = json.getString("content");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return content;
     }
 
     /**
