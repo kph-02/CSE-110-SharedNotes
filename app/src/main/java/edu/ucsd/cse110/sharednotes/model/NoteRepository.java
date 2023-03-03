@@ -1,10 +1,17 @@
 package edu.ucsd.cse110.sharednotes.model;
 
+import android.os.AsyncTask;
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class NoteRepository {
@@ -90,11 +97,37 @@ public class NoteRepository {
         // you don't create a new polling thread every time you call getRemote with the same title.
         // You don't need to worry about killing background threads.
 
-        throw new UnsupportedOperationException("Not implemented yet");
+        NoteAPI api = new NoteAPI();
+        MutableLiveData<Note> noteData = new MutableLiveData<>();
+
+        // TODO: This might need to be changed to a different way of doing a background thread?
+        // got it off stackoverflow so idk if they want us to do a specific way
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (api.exists(title)) {
+                    Note note = Note.fromJSON(api.get(title));
+                    noteData.postValue(note);
+
+                }
+            }
+        });
+
+        // Check if note exists in API
+        if (api.exists(title)) {
+            // Note already exists we just need to fetch it
+            Note note = Note.fromJSON(api.get(title));
+            noteData.postValue(note);
+            Log.i("Exists", "note exists");
+        }
+        else {
+            // Note doesn't exists we need to add it to remote
+        }
+        return noteData;
     }
 
     public void upsertRemote(Note note) {
         // TODO: Implement upsertRemote!
-        throw new UnsupportedOperationException("Not implemented yet");
+        //throw new UnsupportedOperationException("Not implemented yet");
     }
 }
