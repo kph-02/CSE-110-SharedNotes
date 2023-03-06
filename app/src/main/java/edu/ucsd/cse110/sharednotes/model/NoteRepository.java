@@ -122,23 +122,17 @@ public class NoteRepository {
             public void run() {
                 if (api.exists(title)) {
                     var note = api.get(title);
-                    Log.i("GET REMOTE", note.content);
                     noteData.postValue(note);
                 }
             }
         });
 
         // Update every 3 seconds with executor
-        /*
+
         ScheduledExecutorService btExec = Executors.newScheduledThreadPool(1);
-        this.poller = btExec.schedule(() -> {
-            if (api.exists(title)) {
-                var note = api.get(title);
-                Log.i("GET REMOTE", note.content);
-                noteData.postValue(note);
-            }
-        }, 3, TimeUnit.SECONDS);
-         */
+
+        Runnable pullReq = () -> noteData.postValue(api.get(title));
+        this.poller = btExec.scheduleAtFixedRate(pullReq, (long) 3, (long) 3, TimeUnit.SECONDS);
 
         return noteData;
     }
