@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class NoteRepository {
     private final NoteDao dao;
@@ -122,17 +123,35 @@ public class NoteRepository {
 
                 if (api.exists(title)) {
                     var note = api.get(title);
-                    Log.i("GET", note.content);
+                    Log.i("GET REMOTE", note.content);
                     noteData.postValue(note);
                 }
             }
         });
+
+        // Update every 3 seconds with executor
+        /*
+        ScheduledExecutorService btExec = Executors.newScheduledThreadPool(1);
+        this.poller = btExec.schedule(() -> {
+            if (api.exists(title)) {
+                var note = api.get(title);
+                Log.i("GET REMOTE", note.content);
+                noteData.postValue(note);
+            }
+        }, 3, TimeUnit.SECONDS);
+         */
 
         return noteData;
     }
 
     public void upsertRemote(Note note) {
         // TODO: Implement upsertRemote!
-        //throw new UnsupportedOperationException("Not implemented yet");
+        NoteAPI api = new NoteAPI();
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                //api.put(note);
+            }
+        });
     }
 }
