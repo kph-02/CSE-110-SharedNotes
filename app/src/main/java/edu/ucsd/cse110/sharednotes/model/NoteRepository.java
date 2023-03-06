@@ -119,24 +119,15 @@ public class NoteRepository {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                if (api.exists(title)) {
-                    Note note = Note.fromJSON(api.get(title));
-                    noteData.postValue(note);
 
+                if (api.exists(title)) {
+                    var note = api.get(title);
+                    Log.i("GET", note.content);
+                    noteData.postValue(note);
                 }
             }
         });
 
-        // Check if note exists in API
-        if (api.exists(title)) {
-            // Note already exists we just need to fetch it
-            Note note = Note.fromJSON(api.get(title));
-            noteData.postValue(note);
-            Log.i("Exists", "note exists");
-        }
-        else {
-            // Note doesn't exists we need to add it to remote
-        }
         return noteData;
     }
 
