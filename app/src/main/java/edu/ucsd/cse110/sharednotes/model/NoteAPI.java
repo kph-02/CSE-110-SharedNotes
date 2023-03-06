@@ -55,9 +55,11 @@ public class NoteAPI {
         return hasNote;
     }
 
-    public String get(String title) {
+    public Note get(String title) {
         title = title.replace(" ", "%20");
         String content = null;
+        int version = -1;
+        Note returnNote = null;
         var request = new Request.Builder()
                 .url("https://sharednotes.goto.ucsd.edu/notes/" + title)
                 .method("GET", null)
@@ -66,12 +68,11 @@ public class NoteAPI {
         try (var response = client.newCall(request).execute()) {
             assert response.body() != null;
             var body = response.body().string();
-            JSONObject json = new JSONObject(body);
-            content = json.getString("content");
+            returnNote = Note.fromJSON(body);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return content;
+        return returnNote;
     }
 
     /**
