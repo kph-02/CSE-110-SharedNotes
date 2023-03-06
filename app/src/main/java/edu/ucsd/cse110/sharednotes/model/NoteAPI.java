@@ -7,13 +7,16 @@ import androidx.annotation.MainThread;
 import androidx.annotation.WorkerThread;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONObject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class NoteAPI {
     // TODO: Implement the API using OkHttp!
@@ -67,6 +70,28 @@ public class NoteAPI {
             assert response.body() != null;
             var body = response.body().string();
             returnNote = Note.fromJSON(body);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return returnNote;
+    }
+
+    public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
+
+    public Note put(Note note) {
+        String title = note.title;
+        String json = note.toJSON();
+        RequestBody reqBody = RequestBody.create(json, JSON);
+        Note returnNote = null;
+        var request = new Request.Builder()
+                .url("https://sharednotes.goto.ucsd.edu/notes/" + title)
+                .method("PUT", reqBody)
+                .build();
+
+        try (var response = client.newCall(request).execute()) {
+            assert response.body() != null;
+            var resBody = response.body().string();
+            returnNote = Note.fromJSON(resBody);
         } catch (Exception e) {
             e.printStackTrace();
         }

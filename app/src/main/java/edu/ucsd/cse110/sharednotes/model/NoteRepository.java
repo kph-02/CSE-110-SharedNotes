@@ -120,7 +120,6 @@ public class NoteRepository {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-
                 if (api.exists(title)) {
                     var note = api.get(title);
                     Log.i("GET REMOTE", note.content);
@@ -150,7 +149,8 @@ public class NoteRepository {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                //api.put(note);
+                note.version += 1;
+                api.put(note);
             }
         });
     }
